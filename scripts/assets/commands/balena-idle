@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+usage() {
+	cat <<EOUSAGE
+This script basically idles to keep the container running, while periodically printing to the logs that "Idling...".
+
+Options:
+  -m	Message to print when ilding (Default to "Idling...").
+  -i	Printing interval in second (Default to 600 seconds).
+
+EOUSAGE
+}
+
+message="Idling..."
+interval=600
+
+# Args handling
+opts="$(getopt -o 'h?' --long 'message:,interval:' -- "$@" || { usage >&2 && exit 1; })"
+eval set -- "$opts"
+
+while true; do
+	flag=$1
+	shift
+	case "$flag" in
+		--message) message="$1" && shift ;;
+		--interval) interval="$1" && shift ;;
+		--) break ;;
+		*)
+			{
+				echo "error: unknown flag: $flag"
+				usage
+			} >&2
+			exit 1
+			;;
+	esac
+done
+
+while : ; do echo "$message"; sleep $interval; done
